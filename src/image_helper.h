@@ -2,7 +2,7 @@
 #define IMAGE_HELPER_H
 
 #include "program_helper.h"
-#include <FreeImagePlus.h>
+#include <FreeImage.h>
 
 #include <string>
 #include <vector>
