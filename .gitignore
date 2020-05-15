@@ -34,4 +34,4 @@
 output
 outputobj
 *.swp
-lib/*_temp
+lib_temp

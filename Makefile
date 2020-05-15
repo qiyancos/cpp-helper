@@ -1,35 +1,35 @@
-CXX = g++
-AR = ar
+PROJECT = cpp_helper
 
-CPPFLAGS = -g -O2 -fPIC -finline-functions -std=c++11\
-		-Wall -W -Wshadow -Wpointer-arith -Wcast-qual \
-        -Wwrite-strings -Woverloaded-virtual \
-		-Werror -Wno-unused-parameter -Wno-unused-function \
-	    -I ./lib/FreeImagePlus
-
-LDFLAGS = -static
-
-INCLUDE =
-LIB =
-DIST = md5_helper.h conf_helper.h image_helper.h
-
-DPOINT = 0
-ifeq ($(DPOINT),1)
-	CPPFLAGS += -D_USE_DOUBLE_POINT_
-	SOFILE  = libprogram_util.so
-	AFILE = libprogram_util.a
-	LDADDS = -lwslb_d
-else
-	SOFILE  = libprogram_util.so
-	AFILE = libprogram_util.a
-	LDADDS = -lwslb
-endif
+SRCDIR = src
+LIBDIR = lib
+LIBTEMP = lib_temp
 
 OUTPUT = output
 OUTPUT_OBJ = outputobj
 
-OBJ = $(patsubst %.cpp, $(OUTPUT_OBJ)/%.o,$(wildcard *.cpp))
-OBJ += $(patsubst %.c, $(OUTPUT_OBJ)/%.o,$(wildcard *.c))
+CXX = g++
+AR = ar
+
+CPPFLAGS = -g -O2 -fPIC -finline-functions -std=c++11 \
+		-Wall -W -Wshadow -Wpointer-arith -Wcast-qual \
+        -Wwrite-strings -Woverloaded-virtual \
+		-Werror -Wno-unused-parameter -Wno-unused-function
+
+LDFLAGS = -static
+
+SOFILE  = lib$(PROJECT).so
+AFILE = lib$(PROJECT).a
+LDADDS = -lwslb
+
+OBJ = $(patsubst $(SRCDIR)/%.cpp, $(OUTPUT_OBJ)/%.o, $(wildcard *.cpp))
+OBJ += $(patsubst $(SRCDIR)/%.c, $(OUTPUT_OBJ)/%.o, $(wildcard *.c))
+
+DIST = $(wildcard $(SRCDIR)/*.h)
+DIST += $(wildcard $(SRCDIR)/*.hh)
+LIB_NAME = $(shell dir $(LIBDIR))
+
+INCLUDE = $(foreach name, $(LIB_NAME), -I $(LIBTEMP)/$(name)/Dist)
+LIB = $(foreach name, $(LIB_NAME), -L $(LIBTEMP)/$(name)/Dist)
 
 .PHONY: all pre-install post-install clean
 
@@ -41,15 +41,18 @@ $(SOFILE) : $(OBJ)
 $(AFILE) : $(OBJ)
 	$(AR) rcs $@ $^
 
-$(OUTPUT_OBJ)/%.o : %.cpp
+$(OUTPUT_OBJ)/%.o : $(SRCDIR)/%.cpp
 	$(CXX) $(CPPFLAGS) -c $< -o $@ $(INCLUDE) $(LIB) $(LDADDS)
 	
 pre-install :
-	@mkdir -p ${OUTPUT} ${OUTPUT_OBJ}; set LANG=C
-	
+	@mkdir -p ${OUTPUT} ${OUTPUT_OBJ}
+	@set LANG=C
+	@cp -r $(LIBDIR) $(LIBTEMP)
+	$(foreach name, $(LIB_NAME), shell cd $(LIBTEMP)/$(name) && make)
+
 post-install :
-	cp $(DIST) ${OUTPUT}
-	mv $(AFILE) $(OUTPUT)
+	@cp $(DIST) ${OUTPUT}
+	@mv $(AFILE) $(OUTPUT)
 	
 clean:
 	-rm -rf $(OUTPUT_OBJ)

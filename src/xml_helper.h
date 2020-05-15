@@ -21,8 +21,8 @@ must not be misrepresented as being the original software.
 distribution.
 */
 
-#ifndef TINYXML2_INCLUDED
-#define TINYXML2_INCLUDED
+#ifndef XML_HELPER_H
+#define XML_HELPER_H
 
 #if defined(ANDROID_NDK) || defined(__BORLANDC__) || defined(__QNXNTO__)
 #   include <ctype.h>
@@ -2356,10 +2356,10 @@ private:
 };
 
 
-}	// tinyxml2
+}	// namespace tinyxml2
 
 #if defined(_MSC_VER)
 #   pragma warning(pop)
 #endif
 
-#endif // TINYXML2_INCLUDED
+#endif // XML_HELPER_H
